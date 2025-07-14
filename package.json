@@ -1,0 +1,33 @@
+{
+  "name": "stocker",
+  "version": "1.0.0",
+  "description": "A bot to bring a better ai to discord",
+  "main": "dist/main.js",
+  "author": "krish",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "pnpm tsc -b src",
+    "start": "node --enable-source-maps dist/main.js",
+    "start:trace": "node --trace-deprecation --enable-source-maps dist/main.js",
+    "watch": "tsc-watch -b src --onSuccess \"pnpm run start:trace\"",
+    "register": "pnpm build && node dist/register.js"
+  },
+  "imports": {
+    "#root/*": "./dist/*.js",
+    "#lib/*": "./dist/lib/*.js",
+    "#utils/*": "./dist/utils/*.js"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^2.5.1",
+    "@google/genai": "^1.9.0",
+    "discord.js": "^14.21.0",
+    "dotenv": "^17.2.0",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.12",
+    "tsc-watch": "^7.1.1",
+    "typescript": "^5.8.3"
+  }
+}
