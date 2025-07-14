@@ -3,11 +3,11 @@ import fs from "node:fs";
 import { REST, Routes } from "discord.js";
 import { config } from "dotenv";
 import { CLIENT_ID, GUILD_ID } from "./config";
-import { development } from "./commands/quickstart";
 
 config();
 
 const commands = [];
+const developmentCommands = [];
 
 const commandsDir = path.join(__dirname, "commands");
 const commandFiles = fs
@@ -20,7 +20,8 @@ for (const file of commandFiles) {
 
   if (commandModule.default && commandModule.builder) {
     console.info(`Registering command: ${commandModule.name}`);
-    commands.push(commandModule.builder.toJSON());
+    if (commandModule.development) developmentCommands.push(commandModule);
+    else commands.push(commandModule.builder.toJSON());
   }
 }
 
@@ -30,15 +31,14 @@ const rest = new REST({ version: "10" }).setToken(process.env["TOKEN"] || "");
   try {
     console.log("Refreshing message context menu commands...");
 
-    if (development) {
+    if (developmentCommands.length)
       await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
         body: commands,
       });
-    } else {
+    if (commands.length)
       await rest.put(Routes.applicationCommands(CLIENT_ID), {
         body: commands,
       });
-    }
 
     console.log("Successfully registered context commands.");
   } catch (error) {

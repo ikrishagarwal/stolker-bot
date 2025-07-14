@@ -14,8 +14,6 @@ export const builder = new SlashCommandBuilder()
     "Quickstart command to guide you through bot's features and other necessary information."
   );
 
-export const development = true;
-
 export default async (interaction: ChatInputCommandInteraction) => {
   await interaction.reply({
     content: `
