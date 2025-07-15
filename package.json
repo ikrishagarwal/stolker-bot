@@ -11,7 +11,8 @@
     "start": "node --enable-source-maps dist/main.js",
     "start:trace": "node --trace-deprecation --enable-source-maps dist/main.js",
     "watch": "tsc-watch -b src --onSuccess \"pnpm run start:trace\"",
-    "register": "pnpm build && node dist/register.js"
+    "register": "pnpm build && node dist/register.js",
+    "deregister": "pnpm build && node dist/deregister.js"
   },
   "imports": {
     "#root/*": "./dist/*.js",

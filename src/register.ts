@@ -19,7 +19,6 @@ for (const file of commandFiles) {
   const commandModule = require(commandPath);
 
   if (commandModule.default && commandModule.builder) {
-    console.info(`Registering command: ${commandModule.name}`);
     if (commandModule.development) developmentCommands.push(commandModule);
     else commands.push(commandModule.builder.toJSON());
   }
@@ -31,14 +30,25 @@ const rest = new REST({ version: "10" }).setToken(process.env["TOKEN"] || "");
   try {
     console.log("Refreshing message context menu commands...");
 
-    if (developmentCommands.length)
+    if (developmentCommands.length) {
+      console.log(
+        `${developmentCommands.length} Development Commands`,
+        developmentCommands.map((c) => c.name)
+      );
       await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
         body: commands,
       });
-    if (commands.length)
+    }
+
+    if (commands.length) {
+      console.log(
+        `${commands.length} Global Commands`,
+        commands.map((c) => c.name)
+      );
       await rest.put(Routes.applicationCommands(CLIENT_ID), {
         body: commands,
       });
+    }
 
     console.log("Successfully registered context commands.");
   } catch (error) {
