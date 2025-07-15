@@ -54,6 +54,15 @@ Use the \`/roast\` command to generate a roast based on the context you provide.
 
 Use the \`/genzify\` command to convert a message into Gen-Z style.
 
+### 7. 📖 Explain
+
+Right-click on any message → **Apps → Explain This Message**  
+The bot will provide a detailed explanation of the selected message.
+
+### 8. 🕵️‍♂️ Vibe Check
+
+Use the \`/vibe-check\` command to check the vibe of a message. Either provide the message text or the message ID to get started.
+
 ## 📄 Terms & Conditions
 
 By using this bot, you agree to the Terms of Service.  
