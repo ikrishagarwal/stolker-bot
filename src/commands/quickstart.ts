@@ -63,6 +63,12 @@ The bot will provide a detailed explanation of the selected message.
 
 Use the \`/vibe-check\` command to check the vibe of a message. Either provide the message text or the message ID to get started.
 
+### 9. 🗣️ Comeback
+
+Use the \`/comeback\` command to generate a witty comeback for a specific message with their message id based on the optional context you provide.
+
+> 💡 **Tip:** You can optionally make this anonymous to hide evidences.
+
 ## 📄 Terms & Conditions
 
 By using this bot, you agree to the Terms of Service.  
