@@ -12,6 +12,7 @@ const rest = new REST({ version: "10" }).setToken(process.env["TOKEN"] || "");
       Routes.applicationCommands(CLIENT_ID)
     )) as Command[];
 
+    console.log("\nCommands registered:");
     let count = 1;
     for (const command of commands) {
       console.log(`${String(count++).padStart(2, "0")}. ${command.name}`);

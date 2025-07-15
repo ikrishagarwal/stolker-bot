@@ -28,7 +28,7 @@ const rest = new REST({ version: "10" }).setToken(process.env["TOKEN"] || "");
 
 (async () => {
   try {
-    console.log("Refreshing message context menu commands...");
+    console.log("\nRegistering commands...");
 
     if (developmentCommands.length) {
       console.log(
@@ -45,6 +45,16 @@ const rest = new REST({ version: "10" }).setToken(process.env["TOKEN"] || "");
         `${commands.length} Global Commands`,
         commands.map((c) => c.name)
       );
+
+      //// temporary way to register commands one by one ////
+
+      // for (const command of commands) {
+      //   console.log(`Registering command: ${command.name}`);
+      //   await rest.post(Routes.applicationCommands(CLIENT_ID), {
+      //     body: command,
+      //   });
+      // }
+
       await rest.put(Routes.applicationCommands(CLIENT_ID), {
         body: commands,
       });
