@@ -21,7 +21,7 @@ const genzify = (content: string) => {
   });
 };
 
-export const name = "Genzify";
+export const name = "Genzify This";
 export const builder = new ContextMenuCommandBuilder()
   .setName(name)
   .setType(ApplicationCommandType.Message);
