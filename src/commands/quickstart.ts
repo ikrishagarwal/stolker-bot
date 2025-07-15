@@ -41,6 +41,19 @@ The bot will generate a Gen-Z-style roast of the selected message.
 
 Use the \`/quickstart\` command at any time to view this guide again and quickly review how to use the bot’s features.
 
+### 4. 🧑‍💻 Genzify
+
+Right-click on any message → **Apps → Genzify This Message**  
+The bot will convert the selected message into a Gen-Z style with internet lingo.
+
+### 5. 📝 Roast Slash Command
+
+Use the \`/roast\` command to generate a roast based on the context you provide.
+
+### 6. 🧑‍💻 Genzify Slash Command
+
+Use the \`/genzify\` command to convert a message into Gen-Z style.
+
 ## 📄 Terms & Conditions
 
 By using this bot, you agree to the Terms of Service.  
