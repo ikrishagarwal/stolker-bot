@@ -2,7 +2,6 @@ import {
   CacheType,
   ChatInputCommandInteraction,
   cleanContent,
-  MessageFlags,
   SlashCommandBuilder,
 } from "discord.js";
 import { GoogleGenAI } from "@google/genai";
@@ -21,7 +20,7 @@ const generateRoast = (content: string) => {
   });
 };
 
-export const name = "contextroast";
+export const name = "roast";
 export const builder = new SlashCommandBuilder()
   .setName(name)
   .setDescription("Get a roast message based on the context you provide")
@@ -30,19 +29,11 @@ export const builder = new SlashCommandBuilder()
       .setName("context")
       .setDescription("The context to build up the roast from")
       .setRequired(true)
+      .setMinLength(10)
   );
 
 export default async (interaction: ChatInputCommandInteraction<CacheType>) => {
   const roastContext = interaction.options.getString("context", true).trim();
-
-  if (roastContext.length <= 10) {
-    await interaction.reply({
-      content: "Provide a message with at least a handful of words pal",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
   await interaction.deferReply();
 
   const context = interaction.channel
