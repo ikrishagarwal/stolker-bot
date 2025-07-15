@@ -13,7 +13,7 @@ const genzify = (content: string) => {
     contents: content,
     config: {
       systemInstruction:
-        "You are a young Gen-Z guy. Convert the messages into a Gen-Z style with some internet lingo in no more than a few lines, for context it's a discord message and might include mentions and emojis",
+        "You are a young Gen-Z guy. Convert the messages into a Gen-Z style with some internet lingo in no more than a few lines, for context it's a discord message and might include mentions and emojis. You are strictly required to just convert the message without any additional text or context.",
       temperature: 0.6,
     },
   });
