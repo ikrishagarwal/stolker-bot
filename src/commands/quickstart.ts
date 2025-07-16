@@ -1,3 +1,4 @@
+import { Command } from "#lib/command";
 import { TOS_URL } from "#root/config";
 import {
   ActionRowBuilder,
@@ -7,16 +8,22 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 
-export const name = "quickstart";
-export const builder = new SlashCommandBuilder()
-  .setName(name)
-  .setDescription(
-    "Quickstart command to guide you through bot's features and other necessary information."
-  );
+const name = "quickstart";
 
-export default async (interaction: ChatInputCommandInteraction) => {
-  await interaction.reply({
-    content: `
+export default class extends Command {
+  public static commandName = name;
+
+  public static builder() {
+    return new SlashCommandBuilder()
+      .setName(name)
+      .setDescription(
+        "Quickstart command to guide you through bot's features and other necessary information."
+      );
+  }
+
+  public static async chatInputRun(interaction: ChatInputCommandInteraction) {
+    await interaction.reply({
+      content: `
 # 📘 Quickstart Guide - STOLKER Bot
 
 Welcome to the Quickstart Guide!  
@@ -74,14 +81,15 @@ Use the \`/comeback\` command to generate a witty comeback for a specific messag
 By using this bot, you agree to the Terms of Service.  
 Click the button below to read them.
 `,
-    components: [
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setLabel("Terms of Service")
-          .setStyle(ButtonStyle.Link)
-          .setURL(TOS_URL)
-      ),
-    ],
-    ephemeral: true,
-  });
-};
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setLabel("Terms of Service")
+            .setStyle(ButtonStyle.Link)
+            .setURL(TOS_URL)
+        ),
+      ],
+      ephemeral: true,
+    });
+  }
+}

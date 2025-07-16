@@ -1,3 +1,4 @@
+import { Command } from "#lib/command";
 import { GoogleGenAI } from "@google/genai";
 import {
   CacheType,
@@ -6,67 +7,78 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 
-export const name = "comeback";
-export const builder = new SlashCommandBuilder()
-  .setName(name)
-  .setDescription("Get a comeback message based on the context you provide")
-  .addStringOption((option) =>
-    option
-      .setName("message_id")
-      .setDescription("The ID of the message to generate a comeback for")
-      .setRequired(true)
-  )
-  .addStringOption((option) =>
-    option
-      .setName("context")
-      .setDescription("The context to build up the comeback from")
-      .setRequired(false)
-      .setMinLength(10)
-  )
-  .addBooleanOption((option) =>
-    option.setName("anonymous").setDescription("Send the comeback anonymously")
-  );
-
+const name = "comeback";
 const ai = new GoogleGenAI({});
 
-export default async (interaction: ChatInputCommandInteraction<CacheType>) => {
-  const messageID = interaction.options.getString("message_id", true).trim();
-  const context = interaction.options.getString("context")?.trim() || "";
-  const anonymous = interaction.options.getBoolean("anonymous") || false;
+export default class extends Command {
+  public static commandName = name;
 
-  await interaction.deferReply({
-    flags: MessageFlags.Ephemeral,
-  });
-
-  const messageChannel = await interaction.client.channels
-    .fetch(interaction.channelId)
-    .catch(() => null);
-
-  if (!messageChannel || !messageChannel.isTextBased()) {
-    await interaction.editReply({
-      content: "Either I lack permissions or not in the server.",
-    });
-    return;
+  public static builder() {
+    return new SlashCommandBuilder()
+      .setName(name)
+      .setDescription("Get a comeback message based on the context you provide")
+      .addStringOption((option) =>
+        option
+          .setName("message_id")
+          .setDescription("The ID of the message to generate a comeback for")
+          .setRequired(true)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("context")
+          .setDescription("The context to build up the comeback from")
+          .setRequired(false)
+          .setMinLength(10)
+      )
+      .addBooleanOption((option) =>
+        option
+          .setName("anonymous")
+          .setDescription("Send the comeback anonymously")
+      );
   }
 
-  const message = await messageChannel.messages
-    .fetch(messageID)
-    .catch(() => null);
+  public static async chatInputRun(
+    interaction: ChatInputCommandInteraction<CacheType>
+  ) {
+    const messageID = interaction.options.getString("message_id", true).trim();
+    const context = interaction.options.getString("context")?.trim() || "";
+    const anonymous = interaction.options.getBoolean("anonymous") || false;
 
-  if (!message) {
-    await interaction.editReply({
-      content: "Are you sure that ID exists? *suspects*",
+    await interaction.deferReply({
+      flags: MessageFlags.Ephemeral,
     });
-    return;
-  }
 
-  const comeback = await ai.models.generateContent({
-    model: "gemini-2.5-flash-lite-preview-06-17",
-    contents:
-      `${message.author.displayName} said "${message.content}".` +
-      (context ? ` There's some context provided by the user: ${context}` : ""),
-    config: {
-      systemInstruction: `You are a sarcastic Gen-Z roastmaster who lives online and never misses a chance to clap back.
+    const messageChannel = await interaction.client.channels
+      .fetch(interaction.channelId)
+      .catch(() => null);
+
+    if (!messageChannel || !messageChannel.isTextBased()) {
+      await interaction.editReply({
+        content: "Either I lack permissions or not in the server.",
+      });
+      return;
+    }
+
+    const message = await messageChannel.messages
+      .fetch(messageID)
+      .catch(() => null);
+
+    if (!message) {
+      await interaction.editReply({
+        content: "Are you sure that ID exists? *suspects*",
+      });
+      return;
+    }
+
+    const comeback = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite-preview-06-17",
+      contents:
+        `${message.author.displayName} said "${message.content}".` +
+        (context
+          ? ` There's some context provided by the user: ${context}`
+          : ""),
+      config: {
+        systemInstruction: `You are a sarcastic Gen-Z roastmaster who lives online and never misses a chance to clap back.
 
 Given a roast, insult, or sassy comment, respond with a short and savage **comeback**. Keep it clever, biting, and modern — like something you'd hear in a TikTok comment war, Discord thread, or viral quote tweet.
 
@@ -78,21 +90,22 @@ Occasionally include rare or chaotic energy replies like:
 - "That comeback had the structural integrity of a soggy biscuit."
 
 Never explain or apologize. Just drop the line and go. Output only the comeback line, nothing else. Look more involved with the chat and don't look out of the box`,
-      temperature: 0.5,
-    },
-  });
+        temperature: 0.5,
+      },
+    });
 
-  await message.reply({
-    content:
-      comeback.text +
-      (anonymous ? "" : `\n\n-# Comeback generated by ${interaction.user}`),
-    allowedMentions: {
-      users: [],
-      roles: [],
-    },
-  });
+    await message.reply({
+      content:
+        comeback.text +
+        (anonymous ? "" : `\n\n-# Comeback generated by ${interaction.user}`),
+      allowedMentions: {
+        users: [],
+        roles: [],
+      },
+    });
 
-  await interaction.editReply({
-    content: "Comeback sent successfully!",
-  });
-};
+    await interaction.editReply({
+      content: "Comeback sent successfully!",
+    });
+  }
+}

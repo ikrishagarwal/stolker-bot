@@ -1,3 +1,4 @@
+import { Command } from "#lib/command";
 import { GoogleGenAI } from "@google/genai";
 import {
   CacheType,
@@ -7,72 +8,78 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 
-export const name = "vibe-check";
-
-export const builder = new SlashCommandBuilder()
-  .setName(name)
-  .setDescription("Check the vibe of a message")
-  .addStringOption((option) =>
-    option
-      .setName("message")
-      .setDescription("The message to vibe check")
-      .setRequired(false)
-  )
-  .addStringOption((option) =>
-    option
-      .setName("message_id")
-      .setDescription("The ID of the message to vibe check")
-      .setRequired(false)
-  );
-
+const name = "vibe-check";
 const ai = new GoogleGenAI({});
 
-export default async (interaction: ChatInputCommandInteraction<CacheType>) => {
-  const messageOption = interaction.options.getString("message");
-  const messageID = interaction.options.getString("message_id");
+export default class extends Command {
+  public static commandName = name;
 
-  if (!messageOption && !messageID) {
-    await interaction.reply({
-      content:
-        "At least provide either of message or message ID you dumb dumb, also, I judged you on this one!",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
+  public static builder() {
+    return new SlashCommandBuilder()
+      .setName(name)
+      .setDescription("Check the vibe of a message")
+      .addStringOption((option) =>
+        option
+          .setName("message")
+          .setDescription("The message to vibe check")
+          .setRequired(false)
+      )
+      .addStringOption((option) =>
+        option
+          .setName("message_id")
+          .setDescription("The ID of the message to vibe check")
+          .setRequired(false)
+      );
   }
 
-  await interaction.deferReply();
-  let message =
-    messageOption && interaction.channel?.isTextBased()
-      ? cleanContent(messageOption, interaction.channel)
-      : "";
+  public static async chatInputRun(
+    interaction: ChatInputCommandInteraction<CacheType>
+  ) {
+    const messageOption = interaction.options.getString("message");
+    const messageID = interaction.options.getString("message_id");
 
-  if (messageID) {
-    const fetchedMessage = await interaction.channel?.messages
-      .fetch(messageID)
-      .catch(() => null);
-
-    if (!fetchedMessage) {
-      await interaction.editReply({
-        content: "Are you sure that ID exists? *suspects*",
+    if (!messageOption && !messageID) {
+      await interaction.reply({
+        content:
+          "At least provide either of message or message ID you dumb dumb, also, I judged you on this one!",
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
-    message = fetchedMessage.cleanContent.trim();
-  }
+    await interaction.deferReply();
+    let message =
+      messageOption && interaction.channel?.isTextBased()
+        ? cleanContent(messageOption, interaction.channel)
+        : "";
 
-  if (message.length < 6) {
-    await interaction.editReply({
-      content: "That's not even a handful of words, pal!",
-    });
-    return;
-  }
+    if (messageID) {
+      const fetchedMessage = await interaction.channel?.messages
+        .fetch(messageID)
+        .catch(() => null);
 
-  const vibeCheck = await ai.models.generateContent({
-    model: "gemini-2.5-flash-lite-preview-06-17",
-    contents: message,
-    config: {
-      systemInstruction: `You are a sarcastic and extremely online Discord mod.
+      if (!fetchedMessage) {
+        await interaction.editReply({
+          content: "Are you sure that ID exists? *suspects*",
+        });
+        return;
+      }
+
+      message = fetchedMessage.cleanContent.trim();
+    }
+
+    if (message.length < 6) {
+      await interaction.editReply({
+        content: "That's not even a handful of words, pal!",
+      });
+      return;
+    }
+
+    const vibeCheck = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite-preview-06-17",
+      contents: message,
+      config: {
+        systemInstruction: `You are a sarcastic and extremely online Discord mod.
 
 Given a Discord conversation, your job is to do a vibe check. Respond with a culturally tuned, one-liner judgment of the vibe — like a comment on a viral TikTok or a post from a very self-aware Twitter user.
 
@@ -101,15 +108,16 @@ Do not include emojis unless part of an easter egg. Keep it to **one witty sente
 
 Output only the verdict, nothing else.
 `,
-      temperature: 0.5,
-    },
-  });
+        temperature: 0.5,
+      },
+    });
 
-  await interaction.editReply({
-    content: `> ${message}` + "\n\nUmm.. " + vibeCheck.text,
-    allowedMentions: {
-      users: [],
-      roles: [],
-    },
-  });
-};
+    await interaction.editReply({
+      content: `> ${message}` + "\n\nUmm.. " + vibeCheck.text,
+      allowedMentions: {
+        users: [],
+        roles: [],
+      },
+    });
+  }
+}

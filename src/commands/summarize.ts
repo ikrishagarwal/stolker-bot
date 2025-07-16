@@ -14,114 +14,121 @@ import {
 } from "discord.js";
 import { GoogleGenAI } from "@google/genai";
 import { splitIntoSentences } from "#utils/strings";
+import { Command } from "#lib/command";
 
+const name = "Start Summarizing";
 const ai = new GoogleGenAI({});
 
-export const name = "Start Summarizing";
-export const builder = new ContextMenuCommandBuilder()
-  .setName(name)
-  .setType(ApplicationCommandType.Message);
+export default class extends Command {
+  public static commandName = name;
 
-export default async (
-  interaction: MessageContextMenuCommandInteraction<CacheType>
-) => {
-  if (
-    !interaction.guildId ||
-    !interaction.client.guilds.cache.has(interaction.guildId)
-  ) {
-    return await interaction.reply({
-      content: "Add me to this server to use this command.",
-      flags: MessageFlags.Ephemeral,
-    });
+  public static builder() {
+    return new ContextMenuCommandBuilder()
+      .setName(name)
+      .setType(ApplicationCommandType.Message);
   }
 
-  await interaction.deferReply({
-    // flags: MessageFlags.Ephemeral,
-  });
-
-  const message = await interaction.editReply({
-    content: "How far you want your summary to go?",
-    components: [
-      new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("summarize_until_message")
-          .setLabel("Summarize Until a Message")
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId("summarize_until_latest")
-          .setLabel("Summarize Until Latest")
-          .setStyle(ButtonStyle.Primary)
-      ),
-    ],
-  });
-
-  const collector = message.createMessageComponentCollector({
-    filter: (i) => i.user.id === interaction.user.id,
-    time: 60_000, // 1 minute
-    max: 1,
-  });
-
-  collector.once("collect", async (buttonInteraction) => {
-    if (buttonInteraction.customId === "summarize_until_latest") {
-      await buttonInteraction.deferUpdate();
-      await summarizeAndReply(interaction);
-      return;
+  public static async contextMenuRun(
+    interaction: MessageContextMenuCommandInteraction<CacheType>
+  ) {
+    if (
+      !interaction.guildId ||
+      !interaction.client.guilds.cache.has(interaction.guildId)
+    ) {
+      return await interaction.reply({
+        content: "Add me to this server to use this command.",
+        flags: MessageFlags.Ephemeral,
+      });
     }
 
-    if (buttonInteraction.customId === "summarize_until_message") {
-      await buttonInteraction.showModal({
-        title: "Summarize Until a Message",
-        customId: "summarize_until_message_modal",
-        components: [
-          new ActionRowBuilder<TextInputBuilder>().addComponents(
-            new TextInputBuilder()
-              .setCustomId("message_id_input")
-              .setLabel("Enter the message ID to stop at")
-              .setStyle(TextInputStyle.Short)
-              .setRequired(true)
-              .setPlaceholder("Message ID of the message to stop at")
-          ),
-        ],
-      });
+    await interaction.deferReply({
+      // flags: MessageFlags.Ephemeral,
+    });
 
-      try {
-        const submittedModal = await buttonInteraction.awaitModalSubmit({
-          time: 60_000, // 60 seconds timeout
-          filter: (i) =>
-            i.customId === "summarize_until_message_modal" &&
-            i.user.id === buttonInteraction.user.id,
+    const message = await interaction.editReply({
+      content: "How far you want your summary to go?",
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("summarize_until_message")
+            .setLabel("Summarize Until a Message")
+            .setStyle(ButtonStyle.Primary),
+          new ButtonBuilder()
+            .setCustomId("summarize_until_latest")
+            .setLabel("Summarize Until Latest")
+            .setStyle(ButtonStyle.Primary)
+        ),
+      ],
+    });
+
+    const collector = message.createMessageComponentCollector({
+      filter: (i) => i.user.id === interaction.user.id,
+      time: 60_000, // 1 minute
+      max: 1,
+    });
+
+    collector.once("collect", async (buttonInteraction) => {
+      if (buttonInteraction.customId === "summarize_until_latest") {
+        await buttonInteraction.deferUpdate();
+        await summarizeAndReply(interaction);
+        return;
+      }
+
+      if (buttonInteraction.customId === "summarize_until_message") {
+        await buttonInteraction.showModal({
+          title: "Summarize Until a Message",
+          customId: "summarize_until_message_modal",
+          components: [
+            new ActionRowBuilder<TextInputBuilder>().addComponents(
+              new TextInputBuilder()
+                .setCustomId("message_id_input")
+                .setLabel("Enter the message ID to stop at")
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true)
+                .setPlaceholder("Message ID of the message to stop at")
+            ),
+          ],
         });
 
-        const messageId =
-          submittedModal.fields.getTextInputValue("message_id_input");
+        try {
+          const submittedModal = await buttonInteraction.awaitModalSubmit({
+            time: 60_000, // 60 seconds timeout
+            filter: (i) =>
+              i.customId === "summarize_until_message_modal" &&
+              i.user.id === buttonInteraction.user.id,
+          });
 
-        await submittedModal.deferUpdate();
-        await summarizeAndReply(interaction, messageId);
-      } catch (error) {
-        console.warn("Modal was not submitted in time or was cancelled.");
-        return await buttonInteraction.editReply({
+          const messageId =
+            submittedModal.fields.getTextInputValue("message_id_input");
+
+          await submittedModal.deferUpdate();
+          await summarizeAndReply(interaction, messageId);
+        } catch (error) {
+          console.warn("Modal was not submitted in time or was cancelled.");
+          return await buttonInteraction.editReply({
+            content: "You took too long to respond. Please try again.",
+            components: [],
+          });
+        }
+        return;
+      }
+
+      collector.stop();
+      return;
+    });
+
+    collector.once("end", async (collected) => {
+      if (collected.size === 0) {
+        await interaction.editReply({
           content: "You took too long to respond. Please try again.",
           components: [],
         });
       }
-      return;
-    }
+    });
 
-    collector.stop();
     return;
-  });
-
-  collector.once("end", async (collected) => {
-    if (collected.size === 0) {
-      await interaction.editReply({
-        content: "You took too long to respond. Please try again.",
-        components: [],
-      });
-    }
-  });
-
-  return;
-};
+  }
+}
 
 async function summarizeAndReply(
   interaction: MessageContextMenuCommandInteraction<CacheType>,

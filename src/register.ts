@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { REST, Routes } from "discord.js";
 import { config } from "dotenv";
 import { CLIENT_ID, GUILD_ID } from "./config";
+import { Command } from "#lib/command";
 
 config();
 
@@ -17,10 +18,12 @@ const commandFiles = fs
 for (const file of commandFiles) {
   const commandPath = path.join(commandsDir, file);
   const commandModule = require(commandPath);
+  const commandClass = commandModule.default as typeof Command;
 
-  if (commandModule.default && commandModule.builder) {
-    if (commandModule.development) developmentCommands.push(commandModule);
-    else commands.push(commandModule.builder.toJSON());
+  if (commandClass && commandClass.builder) {
+    if (commandModule.development)
+      developmentCommands.push(commandClass.builder().toJSON());
+    else commands.push(commandClass.builder().toJSON());
   }
 }
 

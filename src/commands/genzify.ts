@@ -6,8 +6,10 @@ import {
   MessageFlags,
 } from "discord.js";
 import { GoogleGenAI } from "@google/genai";
+import { Command } from "#lib/command";
 
 const ai = new GoogleGenAI({});
+const name = "Genzify This";
 
 const genzify = (content: string) => {
   return ai.models.generateContent({
@@ -21,67 +23,72 @@ const genzify = (content: string) => {
   });
 };
 
-export const name = "Genzify This";
-export const builder = new ContextMenuCommandBuilder()
-  .setName(name)
-  .setType(ApplicationCommandType.Message);
+export default class extends Command {
+  public static commandName = name;
 
-export default async (
-  interaction: MessageContextMenuCommandInteraction<CacheType>
-) => {
-  const message = interaction.targetMessage.content.trim();
-
-  if (message.length <= 3) {
-    await interaction.reply({
-      content: "Provide a message with at least a handful of words pal",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
+  public static builder() {
+    return new ContextMenuCommandBuilder()
+      .setName(name)
+      .setType(ApplicationCommandType.Message);
   }
 
-  await interaction.deferReply();
+  public static async contextMenuRun(
+    interaction: MessageContextMenuCommandInteraction<CacheType>
+  ) {
+    const message = interaction.targetMessage.content.trim();
 
-  const genzifiedMessage = await genzify(message);
+    if (message.length <= 3) {
+      await interaction.reply({
+        content: "Provide a message with at least a handful of words pal",
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
 
-  try {
-    const messageChannel = await interaction.client.channels.fetch(
-      interaction.targetMessage.channelId
-    );
+    await interaction.deferReply();
 
-    if (!messageChannel || !messageChannel.isTextBased())
-      throw new Error("Channel not found or is not a text channel.");
+    const genzifiedMessage = await genzify(message);
 
-    const replyMessage = await messageChannel.messages.fetch(
-      interaction.targetMessage.id
-    );
+    try {
+      const messageChannel = await interaction.client.channels.fetch(
+        interaction.targetMessage.channelId
+      );
 
-    if (!replyMessage)
-      throw new Error("Original message not found in the channel.");
+      if (!messageChannel || !messageChannel.isTextBased())
+        throw new Error("Channel not found or is not a text channel.");
 
-    await replyMessage.reply({
-      content:
-        genzifiedMessage.text + `\n\n-# GenZ-fied by ${interaction.user}`,
-      allowedMentions: {
-        users: [],
-        roles: [],
-      },
-    });
+      const replyMessage = await messageChannel.messages.fetch(
+        interaction.targetMessage.id
+      );
 
-    await interaction.editReply({
-      content: "GenZ-fied version of the message sent!",
-    });
-    await interaction.deleteReply();
-  } catch {
-    await interaction.editReply({
-      content:
-        `> **${interaction.targetMessage.author.displayName}:** ${message}\n\n` +
-        genzifiedMessage.text +
-        "\n\n-# Tip: Add me to this server to have a better experience",
-      allowedMentions: {
-        repliedUser: false,
-        users: [],
-        roles: [],
-      },
-    });
+      if (!replyMessage)
+        throw new Error("Original message not found in the channel.");
+
+      await replyMessage.reply({
+        content:
+          genzifiedMessage.text + `\n\n-# GenZ-fied by ${interaction.user}`,
+        allowedMentions: {
+          users: [],
+          roles: [],
+        },
+      });
+
+      await interaction.editReply({
+        content: "GenZ-fied version of the message sent!",
+      });
+      await interaction.deleteReply();
+    } catch {
+      await interaction.editReply({
+        content:
+          `> **${interaction.targetMessage.author.displayName}:** ${message}\n\n` +
+          genzifiedMessage.text +
+          "\n\n-# Tip: Add me to this server to have a better experience",
+        allowedMentions: {
+          repliedUser: false,
+          users: [],
+          roles: [],
+        },
+      });
+    }
   }
-};
+}

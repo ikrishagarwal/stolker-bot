@@ -3,14 +3,16 @@ import { config } from "dotenv";
 import path from "node:path";
 import fs from "node:fs";
 import {
+  ChatInputCommandInteraction,
   Collection,
   Events,
   MessageContextMenuCommandInteraction,
 } from "discord.js";
+import { Command } from "#lib/command";
 
 config();
 
-const commands = new Collection<string, any>();
+const commands = new Collection<string, typeof Command>();
 
 const commandsDir = path.join(__dirname, "commands");
 const commandFiles = fs
@@ -20,10 +22,11 @@ const commandFiles = fs
 for (const file of commandFiles) {
   const commandPath = path.join(commandsDir, file);
   const commandModule = require(commandPath);
+  const commandClass = commandModule.default as typeof Command;
 
-  if (commandModule.default) {
-    console.info(`Registering command: ${commandModule.name}`);
-    commands.set(commandModule.name, commandModule);
+  if (commandClass) {
+    console.info(`Registering command: ${commandClass.commandName}`);
+    commands.set(commandClass.commandName, commandClass);
   }
 }
 
@@ -38,7 +41,13 @@ client.on(Events.InteractionCreate, async (interaction) => {
   if (!command) return;
 
   try {
-    await command.default(interaction as MessageContextMenuCommandInteraction);
+    if (interaction.isChatInputCommand() && command.chatInputRun)
+      await command.chatInputRun(interaction as ChatInputCommandInteraction);
+
+    if (interaction.isMessageContextMenuCommand() && command.contextMenuRun)
+      await command.contextMenuRun(
+        interaction as MessageContextMenuCommandInteraction
+      );
   } catch (error) {
     console.error(error);
     if (interaction.replied || interaction.deferred) {

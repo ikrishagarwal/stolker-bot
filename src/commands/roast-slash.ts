@@ -5,7 +5,9 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { GoogleGenAI } from "@google/genai";
+import { Command } from "#lib/command";
 
+const name = "roast";
 const ai = new GoogleGenAI({});
 
 const generateRoast = (content: string) => {
@@ -20,33 +22,40 @@ const generateRoast = (content: string) => {
   });
 };
 
-export const name = "roast";
-export const builder = new SlashCommandBuilder()
-  .setName(name)
-  .setDescription("Get a roast message based on the context you provide")
-  .addStringOption((option) =>
-    option
-      .setName("context")
-      .setDescription("The context to build up the roast from")
-      .setRequired(true)
-      .setMinLength(10)
-  );
+export default class extends Command {
+  public static commandName = name;
 
-export default async (interaction: ChatInputCommandInteraction<CacheType>) => {
-  const roastContext = interaction.options.getString("context", true).trim();
-  await interaction.deferReply();
+  public static builder() {
+    return new SlashCommandBuilder()
+      .setName(name)
+      .setDescription("Get a roast message based on the context you provide")
+      .addStringOption((option) =>
+        option
+          .setName("context")
+          .setDescription("The context to build up the roast from")
+          .setRequired(true)
+          .setMinLength(10)
+      );
+  }
 
-  const context = interaction.channel
-    ? cleanContent(roastContext, interaction.channel)
-    : roastContext;
+  public static async chatInputRun(
+    interaction: ChatInputCommandInteraction<CacheType>
+  ) {
+    const roastContext = interaction.options.getString("context", true).trim();
+    await interaction.deferReply();
 
-  const roast = await generateRoast(context);
+    const context = interaction.channel
+      ? cleanContent(roastContext, interaction.channel)
+      : roastContext;
 
-  await interaction.editReply({
-    content: roast.text + `\n\n-# Roast generate by ${interaction.user}`,
-    allowedMentions: {
-      users: [],
-      roles: [],
-    },
-  });
-};
+    const roast = await generateRoast(context);
+
+    await interaction.editReply({
+      content: roast.text + `\n\n-# Roast generate by ${interaction.user}`,
+      allowedMentions: {
+        users: [],
+        roles: [],
+      },
+    });
+  }
+}
