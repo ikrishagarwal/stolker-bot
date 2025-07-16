@@ -36,7 +36,7 @@ export default class extends Command {
 
     const tldr = await ai.models.generateContent({
       model: "gemini-2.5-flash-lite-preview-06-17",
-      contents: message.cleanContent,
+      contents: message.cleanContent ?? message.content,
       config: {
         systemInstruction:
           "Summarize the following conversation in a concise and objective way. Keep it under 3 sentences (or a maximum of 4-5 bullet points only if the text extends a few paragraphs). Focus only on the key points or decisions made. Do not include filler words, greetings, or emojis. Begin the summary with 'TL;DR:'. For context, this message was send by " +

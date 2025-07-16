@@ -45,30 +45,12 @@ export default class extends Command {
 
     const genzifiedMessage = await genzify(message);
 
-    try {
-      const messageChannel = await interaction.client.channels.fetch(
-        interaction.channelId
-      );
-
-      if (!messageChannel || !messageChannel.isTextBased())
-        throw new Error("Channel not found or is not a text channel.");
-
-      await interaction.editReply({
-        content: genzifiedMessage.text,
-        allowedMentions: {
-          users: [],
-          roles: [],
-        },
-      });
-    } catch {
-      await interaction.editReply({
-        content: "Failed to convert the message. Please try again later.",
-        allowedMentions: {
-          repliedUser: false,
-          users: [],
-          roles: [],
-        },
-      });
-    }
+    await interaction.editReply({
+      content: genzifiedMessage.text,
+      allowedMentions: {
+        users: [],
+        roles: [],
+      },
+    });
   }
 }

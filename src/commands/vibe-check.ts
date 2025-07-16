@@ -48,12 +48,13 @@ export default class extends Command {
     }
 
     await interaction.deferReply();
+
     let message =
       messageOption && interaction.channel?.isTextBased()
         ? cleanContent(messageOption, interaction.channel)
-        : "";
+        : messageOption ?? "";
 
-    if (messageID) {
+    if (!message && messageID) {
       const fetchedMessage = await interaction.channel?.messages
         .fetch(messageID)
         .catch(() => null);

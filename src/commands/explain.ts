@@ -27,7 +27,7 @@ export default class extends Command {
 
     const explanation = await ai.models.generateContent({
       model: "gemini-2.5-flash-lite-preview-06-17",
-      contents: message.cleanContent,
+      contents: message.cleanContent ?? message.content,
       config: {
         systemInstruction:
           "Explain the following message as if the reader is a 5-year-old. Use simple language and concepts, avoiding complex terms or jargon. The explanation should be clear and easy to understand, focusing on the main idea without unnecessary details in short max-to-max reaching a few sentences.",

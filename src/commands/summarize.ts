@@ -138,7 +138,15 @@ async function summarizeAndReply(
     interaction.targetMessage.channel,
     interaction.targetMessage.id,
     stopAt
-  );
+  ).catch(() => null);
+
+  if (!fetchedMessages) {
+    await interaction.editReply({
+      content: "Failed to fetch messages. Please try again later.",
+      components: [],
+    });
+    return;
+  }
 
   await interaction.editReply({
     content: `Summarizing ${fetchedMessages.length} messages...`,
