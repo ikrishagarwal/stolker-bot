@@ -11,9 +11,9 @@ import {
 const name = "quickstart";
 
 export default class extends Command {
-  public static commandName = name;
+  public static override commandName = name;
 
-  public static builder() {
+  public static override builder() {
     return new SlashCommandBuilder()
       .setName(name)
       .setDescription(
@@ -21,7 +21,9 @@ export default class extends Command {
       );
   }
 
-  public static async chatInputRun(interaction: ChatInputCommandInteraction) {
+  public static override async chatInputRun(
+    interaction: ChatInputCommandInteraction
+  ) {
     await interaction.reply({
       content: `
 # 📘 Quickstart Guide - STOLKER Bot

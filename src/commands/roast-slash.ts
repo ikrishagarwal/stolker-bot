@@ -23,9 +23,9 @@ const generateRoast = (content: string) => {
 };
 
 export default class extends Command {
-  public static commandName = name;
+  public static override commandName = name;
 
-  public static builder() {
+  public static override builder() {
     return new SlashCommandBuilder()
       .setName(name)
       .setDescription("Get a roast message based on the context you provide")
@@ -38,7 +38,7 @@ export default class extends Command {
       );
   }
 
-  public static async chatInputRun(
+  public static override async chatInputRun(
     interaction: ChatInputCommandInteraction<CacheType>
   ) {
     const roastContext = interaction.options.getString("context", true).trim();

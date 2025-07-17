@@ -16,16 +16,16 @@ const name = "truth-n-dare";
 const ai = new GoogleGenAI({});
 
 export default class extends Command {
-  public static commandName = name;
-  public static development = true;
+  public static override commandName = name;
+  public static override development = true;
 
-  public static builder() {
+  public static override builder() {
     return new SlashCommandBuilder()
       .setName(name)
       .setDescription("Play a quick game of Truth or Dare");
   }
 
-  public static async chatInputRun(
+  public static override async chatInputRun(
     interaction: ChatInputCommandInteraction<CacheType>
   ) {
     await interaction.reply({
@@ -55,7 +55,7 @@ export default class extends Command {
     });
   }
 
-  public static async buttonRun(interaction: ButtonInteraction) {
+  public static override async buttonRun(interaction: ButtonInteraction) {
     switch (parseButtonId(interaction.customId).customId) {
       case "truth":
         await interaction.deferReply();

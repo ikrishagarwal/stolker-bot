@@ -11,15 +11,15 @@ const name = "Explain Like I'm 5";
 const ai = new GoogleGenAI({});
 
 export default class extends Command {
-  public static commandName = name;
+  public static override commandName = name;
 
-  public static builder() {
+  public static override builder() {
     return new ContextMenuCommandBuilder()
       .setName(name)
       .setType(ApplicationCommandType.Message);
   }
 
-  public static async contextMenuRun(
+  public static override async contextMenuRun(
     interaction: MessageContextMenuCommandInteraction<CacheType>
   ) {
     await interaction.deferReply();

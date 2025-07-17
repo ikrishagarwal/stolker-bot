@@ -12,9 +12,9 @@ const name = "vibe-check";
 const ai = new GoogleGenAI({});
 
 export default class extends Command {
-  public static commandName = name;
+  public static override commandName = name;
 
-  public static builder() {
+  public static override builder() {
     return new SlashCommandBuilder()
       .setName(name)
       .setDescription("Check the vibe of a message")
@@ -32,7 +32,7 @@ export default class extends Command {
       );
   }
 
-  public static async chatInputRun(
+  public static override async chatInputRun(
     interaction: ChatInputCommandInteraction<CacheType>
   ) {
     const messageOption = interaction.options.getString("message");

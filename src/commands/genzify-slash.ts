@@ -22,9 +22,9 @@ const genzify = (content: string) => {
 };
 
 export default class extends Command {
-  public static commandName = name;
+  public static override commandName = name;
 
-  public static builder() {
+  public static override builder() {
     return new SlashCommandBuilder()
       .setName(name)
       .setDescription("Convert a message into Gen-Z style")
@@ -37,7 +37,7 @@ export default class extends Command {
       );
   }
 
-  public static async chatInputRun(
+  public static override async chatInputRun(
     interaction: ChatInputCommandInteraction<CacheType>
   ) {
     const message = interaction.options.getString("text", true).trim();
