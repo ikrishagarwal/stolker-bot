@@ -21,7 +21,7 @@ for (const file of commandFiles) {
   const commandClass = commandModule.default as typeof Command;
 
   if (commandClass && commandClass.builder) {
-    if (commandModule.development)
+    if (commandClass.development)
       developmentCommands.push(commandClass.builder().toJSON());
     else commands.push(commandClass.builder().toJSON());
   }
