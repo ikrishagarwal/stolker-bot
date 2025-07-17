@@ -17,7 +17,6 @@ const ai = new GoogleGenAI({});
 
 export default class extends Command {
   public static override commandName = name;
-  public static override development = true;
 
   public static override builder() {
     return new SlashCommandBuilder()
