@@ -78,6 +78,10 @@ Use the \`/comeback\` command to generate a witty comeback for a specific messag
 
 > 💡 **Tip:** You can optionally make this anonymous to hide evidences.
 
+### 10. 🕹️ Truth N Dare
+
+Use the \`/truth-or-dare\` command to play a game of Truth or Dare with the bot. You can choose between truth or dare, and the bot will provide you with a challenge.
+
 ## 📄 Terms & Conditions
 
 By using this bot, you agree to the Terms of Service.  
