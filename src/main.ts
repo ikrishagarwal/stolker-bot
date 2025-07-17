@@ -3,12 +3,14 @@ import { config } from "dotenv";
 import path from "node:path";
 import fs from "node:fs";
 import {
+  ButtonInteraction,
   ChatInputCommandInteraction,
   Collection,
   Events,
   MessageContextMenuCommandInteraction,
 } from "discord.js";
 import { Command } from "#lib/command";
+import { parseButtonId } from "#utils/buttonId";
 
 config();
 
@@ -31,13 +33,20 @@ for (const file of commandFiles) {
 }
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (
-    !interaction.isMessageContextMenuCommand() &&
-    !interaction.isChatInputCommand()
-  )
-    return;
+  let commandName: string | undefined;
 
-  const command = commands.get(interaction.commandName);
+  if (
+    interaction.isMessageContextMenuCommand() ||
+    interaction.isChatInputCommand()
+  )
+    commandName = interaction.commandName;
+
+  if (interaction.isButton())
+    commandName = parseButtonId(interaction.customId).commandName;
+
+  if (!commandName) return;
+
+  const command = commands.get(commandName);
   if (!command) return;
 
   try {
@@ -48,8 +57,19 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await command.contextMenuRun(
         interaction as MessageContextMenuCommandInteraction
       );
+
+    if (interaction.isButton() && command.buttonRun)
+      await command.buttonRun(interaction as ButtonInteraction);
   } catch (error) {
     console.error(error);
+
+    if (
+      !interaction.isChatInputCommand() &&
+      !interaction.isContextMenuCommand() &&
+      !interaction.isButton()
+    )
+      return;
+
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         content: "Something went wrong.",
