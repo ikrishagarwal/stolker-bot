@@ -17,6 +17,27 @@ Stolker is a smart and snarky Discord bot that uses AI to **summarize**, **roast
 
 ---
 
+
+## 🔠 Commands
+
+### Context Menu Commands
+- **Start Summarizing**: Summarize the conversation around a message.
+- **Roast This Message**: Get a witty roast for a specific message.
+- **Gen-Zify This Message**: Convert a message to Gen-Z slang.
+- **Explain Like I'm 5**: Get a simplified explanation of a message.
+- **TL;DR**: Get a concise summary of a message.
+
+### Slash Commands
+- **/quickstart**: Get a quick guide on how to use Stolker.
+- **/roast**: Roast a specific message with a witty AI-generated response.
+- **/8ball**: Ask a question and get a random answer.
+- **/truth-or-dare**: Play a game of Truth or Dare with the bot.
+- **/genzify**: Convert a message to Gen-Z slang.
+- **/vibe-check**: Check the vibe of a message.
+- **/comeback**: Get a witty comeback for a message.
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
